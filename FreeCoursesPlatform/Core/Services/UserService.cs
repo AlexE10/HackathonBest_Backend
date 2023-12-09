@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.Dtos;
+﻿using Core.Dtos;
+using Core.Mapping;
 using DataLayer;
 using DataLayer.Entities;
-using Core.Mapping;
-using 
+using Infrastructure.Exceptions;
 
 namespace Core.Services
 {
@@ -22,9 +17,9 @@ namespace Core.Services
             this.authorizationService = authorizationService;
         }
 
-        public async Task<List<User>> GetAll()
+        public async Task<List<User>> GetAllAsync()
         {
-            var customers = unitOfWork.Users.GetAll();
+            var customers = await unitOfWork.Users.GetAll();
             //foreach (var user in customers)
             //{
             //    user.Address = user.AddressId.HasValue ? await unitOfWork.Address.GetById(user.AddressId.Value) : null;

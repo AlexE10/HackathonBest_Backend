@@ -20,7 +20,7 @@ namespace DataLayer
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<User>().ToTable("User");
             //modelBuilder.Entity<GamingPubGamingPlatform>()
             //.HasKey(gp => new { gp.GamingPubId, gp.GamingPlatformId });
             modelBuilder.Entity<User>()
