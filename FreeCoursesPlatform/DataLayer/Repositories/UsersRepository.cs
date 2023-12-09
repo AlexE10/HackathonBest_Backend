@@ -20,5 +20,10 @@ namespace DataLayer.Repositories
         {
             return await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
+
+        public async Task AddUserAsync(User user)
+        {
+            await _dbContext.Users.AddAsync(user);
+        }
     }
 }

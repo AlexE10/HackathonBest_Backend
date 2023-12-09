@@ -3,7 +3,7 @@
 using DataLayer;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccessLayer.Repositories
+namespace DataLayer.Repositories
 {
     public class RepositoryBase<T> where T : BaseEntity
     {
