@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Core.Dtos;
+using DataLayer;
+using DataLayer.Entities;
+using Core.Mapping;
+using 
+
+namespace Core.Services
+{
+    public class UserService
+    {
+        private readonly UnitOfWork unitOfWork;
+        private readonly AuthorizationService authorizationService;
+
+        public UserService(UnitOfWork unitOfWork, AuthorizationService authorizationService)
+        {
+            this.unitOfWork = unitOfWork;
+            this.authorizationService = authorizationService;
+        }
+
+        public async Task<List<User>> GetAll()
+        {
+            var customers = unitOfWork.Users.GetAll();
+            //foreach (var user in customers)
+            //{
+            //    user.Address = user.AddressId.HasValue ? await unitOfWork.Address.GetById(user.AddressId.Value) : null;
+            //}
+            return customers;
+        }
+
+        public async Task<bool> RegisterAsync(RegisterDto registerUser)
+        {
+            var foundUser = await unitOfWork.Users.GetUserByEmailAsync(registerUser.Email);
+
+            var passwordHash = authorizationService.HashPassword(registerUser.PasswordHash);
+
+            registerUser.PasswordHash = passwordHash;
+
+            if (foundUser != null)
+            {
+                throw new ForbiddenException("Email is already in use");
+            }
+
+            User newUser = registerUser.ToUser();
+
+            await unitOfWork.Users.AddUserAsync(newUser);
+            await unitOfWork.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<string> ValidateLoginAsync(LoginDto loginData)
+        {
+            var user = await unitOfWork.Users.GetUserByEmailAsync(loginData.Email);
+            if (user == null)
+            {
+                throw new ForbiddenException("Wrong email or password");
+            }
+
+            var isPasswordOk = authorizationService.VerifyHashedPassword(user.PasswordHash, loginData.Password);
+            if (isPasswordOk)
+            {
+                var role = user.Role;
+                return authorizationService.GetToken(user, role);
+            }
+            else
+            {
+                throw new ForbiddenException("Wrong email or password");
+            }
+        }
+    }
+}
