@@ -2,8 +2,9 @@
 using DataLayer;
 using Core.Services;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Authentication;
 
-namespace CarRentalBusiness.Settings
+namespace FreeCoursesPlatform.Settings
 {
     public static class Dependencies
     {
@@ -22,6 +23,9 @@ namespace CarRentalBusiness.Settings
         private static void AddServices(IServiceCollection services)
         {
             services.AddScoped<UserService>();
+            services.AddScoped<AuthorizationService>();
+            services.AddScoped<CourseService>();
+            services.AddScoped<CategoryService>();
         }
 
         private static void AddRepositories(IServiceCollection services)

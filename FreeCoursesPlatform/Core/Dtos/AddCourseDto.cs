@@ -6,11 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataLayer.Dtos
+namespace Core.Dtos
 {
-    public class CourseDto
+    public class AddCourseDto
     {
-        public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Creator { get; set; }

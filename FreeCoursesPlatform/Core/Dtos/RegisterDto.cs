@@ -25,7 +25,5 @@ namespace Core.Dtos
 
         [Required]
         public RoleType Role { get; set; }
-
-        public ICollection<Course> Courses { get; set; }
     }
 }

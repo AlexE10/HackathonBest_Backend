@@ -2,7 +2,7 @@
 {
     public enum RoleType
     {
-        Customer,
-        Admin
+        Creator,
+        Reader
     }
 }

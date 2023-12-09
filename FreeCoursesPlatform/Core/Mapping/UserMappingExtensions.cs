@@ -19,7 +19,6 @@ namespace Core.Mapping
                 Email = registerDto.Email,
                 PasswordHash = registerDto.PasswordHash,
                 Role = registerDto.Role,
-                Courses = registerDto.Courses,
             };
         }
     }

@@ -29,16 +29,16 @@ namespace Core.Services
 
         public async Task<bool> RegisterAsync(RegisterDto registerUser)
         {
-            var foundUser = await unitOfWork.Users.GetUserByEmailAsync(registerUser.Email);
+            //var foundUser = await unitOfWork.Users.GetUserByEmailAsync(registerUser.Email);
 
             var passwordHash = authorizationService.HashPassword(registerUser.PasswordHash);
 
             registerUser.PasswordHash = passwordHash;
 
-            if (foundUser != null)
-            {
-                throw new ForbiddenException("Email is already in use");
-            }
+            //if (foundUser != null)
+            //{
+            //    throw new ForbiddenException("Email is already in use");
+            //}
 
             User newUser = registerUser.ToUser();
 
