@@ -1,7 +1,9 @@
 ﻿using DataLayer.Entities;
+
+using DataLayer;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataLayer.Repositories
+namespace DataAccessLayer.Repositories
 {
     public class RepositoryBase<T> where T : BaseEntity
     {
@@ -14,19 +16,23 @@ namespace DataLayer.Repositories
             _dbSet = dbContext.Set<T>();
         }
 
-        public T GetById(int id)
+        public async Task<T?> GetById(int? id)
         {
-            return _dbSet.FirstOrDefault(entity => entity.Id == id);
+            if (id == null) throw new ArgumentNullException();
+            return await _dbSet.FindAsync(id);
         }
 
-        public void Insert(T entity)
+        public async Task InsertAsync(T entity)
         {
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void Update(T entity)
+        public async Task UpdateAsync(T entity)
         {
+            // _appDbContext.ChangeTracker.Clear();
             _dbSet.Update(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -37,9 +43,9 @@ namespace DataLayer.Repositories
             _dbSet.Remove(entity);
         }
 
-        public List<T> GetAll()
+        public async Task<List<T>> GetAll()
         {
-            return GetRecords().ToList();
+            return await GetRecords().ToListAsync();
         }
 
         public bool Any(Func<T, bool> expression)
@@ -53,4 +59,3 @@ namespace DataLayer.Repositories
         }
     }
 }
-

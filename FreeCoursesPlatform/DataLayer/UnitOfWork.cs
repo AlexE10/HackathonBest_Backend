@@ -34,11 +34,11 @@ namespace DataLayer
 
         }
 
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
             try
             {
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception exception)
             {
