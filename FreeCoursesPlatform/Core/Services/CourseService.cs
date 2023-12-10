@@ -9,6 +9,7 @@ using DataLayer.Entities;
 using DataLayer.Mapping;
 using DataLayer.Dtos;
 using DataLayer.Enums;
+using Infrastructure.Exceptions;
 
 
 namespace Core.Services
@@ -22,10 +23,11 @@ namespace Core.Services
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> AddCourse(AddCourseDto courseDto)
+        public async Task<bool> AddCourse(AddCourseDto courseDto, int creatorId)
         {
             var category = await (unitOfWork.Categories.GetById(courseDto.CategoryId));
-            if(category== null)
+            var creator = await unitOfWork.Users.GetByIdWithCoursesAsync(creatorId);
+            if (category == null || creator == null)
             {
                 return false;
             }
@@ -34,13 +36,14 @@ namespace Core.Services
             {
                 Title = courseDto.Title,
                 Description = courseDto.Description,
-                Creator = courseDto.Creator,
+                Creator = creator,
                 CategoryId = courseDto.CategoryId,
                 Category = category,
                 Duration = courseDto.Duration,
                 Difficulty = courseDto.Difficulty
             };
 
+            creator.CreatedCourses.Add(course);
             await unitOfWork.Courses.InsertAsync(course);
 
             await unitOfWork.SaveChangesAsync();
@@ -58,10 +61,12 @@ namespace Core.Services
         public async Task<bool> UpdateCourse(UpdateCourseDto courseDto)
         {
             var course = await unitOfWork.Courses.GetById(courseDto.Id);
-            if(course == null)
+            var creator = await unitOfWork.Users.GetById(courseDto.CreatorId);
+            if (course == null || creator == null)
             {
                 return false;
             }
+            course.Creator = creator;
             if (courseDto.Title != null)
             {
                 course.Title = courseDto.Title;
@@ -70,10 +75,7 @@ namespace Core.Services
             {
                 course.Description = courseDto.Description;
             }
-            if (courseDto.Creator != null)
-            {
-                course.Creator = courseDto.Creator;
-            }
+
             if (courseDto.CategoryId != null)
             {
                 course.CategoryId = courseDto.CategoryId;
@@ -126,5 +128,54 @@ namespace Core.Services
 
             return courses.Select(CourseMappingExtension.ToDto).ToList();
         }   
+
+        public async Task<bool> EnrollToCourse(EnrollToCourseDto enrollToCourseDto)
+        {
+            var user = await unitOfWork.Users.GetByIdWithEnrolledCourses(enrollToCourseDto.UserId);
+            if(user == null)
+            {
+                return false;
+            }
+
+            var course = await unitOfWork.Courses.GetByIdWithUsersAsync(enrollToCourseDto.CourseId);
+            if(course == null)
+            {
+                return false;
+            }
+
+            user.EnrolledCourses.Add(course);
+            course.Users.Add(user);
+
+            await unitOfWork.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<List<CourseDto>> GetEnrolledCoursesById(int userId)
+        {
+            var user = await unitOfWork.Users.GetById(userId);
+            if(user == null)
+            {
+                throw new ForbiddenException("User not found");
+            }
+
+            var courses = await unitOfWork.Courses.GetAllWithUsersAsync();
+            courses = courses.Where(c => c.Users.Contains(user)).ToList();
+            return courses.Select(CourseMappingExtension.ToDto).ToList();
+        }
+
+        public async Task<List<CourseDto>> GetCreatedCoursesById(int userId)
+        {
+            var user = await unitOfWork.Users.GetById(userId);
+            if (user == null)
+            {
+                throw new ForbiddenException("User not found");
+            }
+
+            var courses = await unitOfWork.Courses.GetAll();
+            courses = courses.Where(c => c.CreatorId == userId).ToList();
+            return courses.Select(CourseMappingExtension.ToDto).ToList();
+        }
+
     }
 }

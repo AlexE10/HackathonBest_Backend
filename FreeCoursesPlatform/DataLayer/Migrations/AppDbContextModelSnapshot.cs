@@ -23,17 +23,17 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("CourseUser", b =>
                 {
-                    b.Property<int>("CoursesId")
+                    b.Property<int>("EnrolledCoursesId")
                         .HasColumnType("int");
 
                     b.Property<int>("UsersId")
                         .HasColumnType("int");
 
-                    b.HasKey("CoursesId", "UsersId");
+                    b.HasKey("EnrolledCoursesId", "UsersId");
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("CourseUser");
+                    b.ToTable("CourseUser", (string)null);
                 });
 
             modelBuilder.Entity("DataLayer.Entities.Category", b =>
@@ -64,9 +64,8 @@ namespace DataLayer.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Creator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -86,6 +85,8 @@ namespace DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("CreatorId");
 
                     b.ToTable("Courses");
                 });
@@ -128,7 +129,7 @@ namespace DataLayer.Migrations
                 {
                     b.HasOne("DataLayer.Entities.Course", null)
                         .WithMany()
-                        .HasForeignKey("CoursesId")
+                        .HasForeignKey("EnrolledCoursesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -147,12 +148,25 @@ namespace DataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DataLayer.Entities.User", "Creator")
+                        .WithMany("CreatedCourses")
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("DataLayer.Entities.Category", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("DataLayer.Entities.User", b =>
+                {
+                    b.Navigation("CreatedCourses");
                 });
 #pragma warning restore 612, 618
         }

@@ -17,7 +17,7 @@ namespace DataLayer.Mapping
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
-                Creator = course.Creator,
+                Creator = "",
                 CategoryId = course.CategoryId,
                 Duration = course.Duration,
                 Difficulty = course.Difficulty,

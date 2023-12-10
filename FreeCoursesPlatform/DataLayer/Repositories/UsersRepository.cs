@@ -25,5 +25,20 @@ namespace DataLayer.Repositories
         {
             await _dbContext.Users.AddAsync(user);
         }
+
+        public async Task<User> GetByIdWithCoursesAsync(int id)
+        {
+            return await _dbContext.Users
+                                   .Include(u => u.CreatedCourses) // Eager loading CreatedCourses
+                                   .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<User> GetByIdWithEnrolledCourses(int id)
+        {
+            return await _dbContext.Users
+                                   .Include(u => u.EnrolledCourses) // Eager loading EnrolledCourses
+                                   .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
     }
 }

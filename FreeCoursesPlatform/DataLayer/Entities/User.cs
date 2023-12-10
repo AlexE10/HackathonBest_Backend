@@ -18,6 +18,8 @@ namespace DataLayer.Entities
             
         public RoleType Role { get; set; }
 
-        public ICollection<Course> Courses { get; set; }
+        public ICollection<Course> EnrolledCourses { get; set; }
+
+        public ICollection<Course> CreatedCourses { get; set; }
     }
 }

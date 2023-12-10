@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Data;
 using Microsoft.AspNetCore.Mvc;
 using Core.Dtos;
+using System.Security.Claims;
 
 namespace FreeCoursesPlatform.Controllers
 {
@@ -30,7 +31,20 @@ namespace FreeCoursesPlatform.Controllers
         [Authorize(Roles = "Creator")]
         public async Task<IActionResult> AddCourse([FromBody] AddCourseDto courseData)
         {
-            if (await _courseService.AddCourse(courseData))
+            // Extract the user ID from the token claims
+            var userIdClaim = User.FindFirst("id");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token");
+            }
+
+            int creatorId;
+            if (!int.TryParse(userIdClaim.Value, out creatorId))
+            {
+                return Unauthorized("Invalid User ID in token");
+            }
+
+            if (await _courseService.AddCourse(courseData, creatorId))
             {
                 return Ok("Course added successfully");
             }
@@ -73,6 +87,70 @@ namespace FreeCoursesPlatform.Controllers
         public async Task<ActionResult<List<Course>>> GetFilteredCourses([FromBody] FilterCoursesDto filterData)
         {
             var courses = await _courseService.GetFilteredCourses(filterData);
+            return Ok(courses);
+        }
+
+        [HttpPost("enroll-to-course")]
+        [Authorize(Roles = "Reader")]
+        public async Task<IActionResult> EnrollToCourse([FromBody] EnrollToCourseDto enrollData)
+        {
+            var userIdClaim = User.FindFirst("id");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token");
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized("Invalid User ID in token");
+            }
+            enrollData.UserId = userId;
+            if (await _courseService.EnrollToCourse(enrollData))
+            {
+                return Ok("Enrolled successfully");
+            }
+            else
+            {
+                return BadRequest("Something wrong happened");
+            }
+        }
+        [HttpGet("get-enrolled-courses-by-userId")]
+        [Authorize(Roles = "Reader")]
+        public async Task<ActionResult<List<Course>>> GetEnrolledCoursesById()
+        {
+            // Extract the user ID from the token claims
+            var userIdClaim = User.FindFirst("id");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token");
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized("Invalid User ID in token");
+            }
+
+            var courses = await _courseService.GetEnrolledCoursesById(userId);
+            return Ok(courses);
+        }
+
+        [HttpGet("get-created-by-userId")]
+        [Authorize(Roles = "Creator")]
+        public async Task<ActionResult<List<Course>>> GetCreatedCoursesById()
+        {
+            // Extract the user ID from the token claims
+            var userIdClaim = User.FindFirst("id");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token");
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized("Invalid User ID in token");
+            }
+
+            var courses = await _courseService.GetCreatedCoursesById(userId);
             return Ok(courses);
         }
     }

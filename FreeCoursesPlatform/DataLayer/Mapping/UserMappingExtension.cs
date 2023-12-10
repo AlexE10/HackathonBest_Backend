@@ -19,7 +19,7 @@ namespace DataLayer.Mapping
                 FirstAndLastName = user.FirstName + " " + user.LastName,
                 Email = user.Email,
                 PasswordHash = user.PasswordHash,
-                Role = user.Role,
+                Role = user.Role
             };
         }
 
