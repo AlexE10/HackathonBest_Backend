@@ -27,7 +27,7 @@ namespace FreeCoursesPlatform.Controllers
         }
 
         [HttpPost("add-course")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Creator")]
         public async Task<IActionResult> AddCourse([FromBody] AddCourseDto courseData)
         {
             if (await _courseService.AddCourse(courseData))
@@ -41,7 +41,7 @@ namespace FreeCoursesPlatform.Controllers
         }
 
         [HttpPut("update-course")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Creator")]
         public async Task<IActionResult> UpdateCourse([FromBody] UpdateCourseDto courseData)
         {
             if (await _courseService.UpdateCourse(courseData))
@@ -55,7 +55,7 @@ namespace FreeCoursesPlatform.Controllers
         }
 
         [HttpDelete("delete-course")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Creator")]
         public async Task<IActionResult> DeleteCourse([FromBody] int courseId)
         {
             if (await _courseService.DeleteCourseById(courseId))
